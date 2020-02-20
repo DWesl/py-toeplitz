@@ -1,0 +1,2 @@
+include VERSION tox.ini setup.cfg setup.py pyproject.toml
+recursive-include tests *.py

@@ -1,0 +1,16 @@
+.cache
+.hypothesis
+.tox
+dist
+__pycache__
+__version__.py
+_build
+build
+.coverage
+.coverage.*
+
+*~
+*.egg-info
+*.dist-info
+*.pyc
+*.whl
