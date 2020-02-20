@@ -6,7 +6,7 @@ from scipy.linalg import toeplitz
 from py_toeplitz import Toeplitz, ConvolveToeplitz
 from py_toeplitz.cytoeplitz import CyToeplitz
 
-TEST_SIZES = [10 ** i for i in range(3, 5)]
+TEST_SIZES = [float(2 ** i) for i in range(3, 14)]
 
 
 class ScipyToeplitzSuite:
@@ -57,6 +57,32 @@ class PyToeplitzSuite:
         self._mat.dot(self._vec)
 
     def mem_py_nocopy(self, size):
+        """Check memory size of operator."""
+        return self._mat
+
+
+class CythonToeplitzSuite:
+    """Benchmark values for `py_toeplitz.cytoeplitz.CyToeplitz`."""
+    params = TEST_SIZES
+    param_names = ["size"]
+
+    def setup(self, size):
+        """Set up the matrix and test vector."""
+        self._mat = CyToeplitz(arange(size, 0, -1))
+        self._vec = arange(size)
+
+    def time_cy_nocopy(self, size):
+        """Time the multiply."""
+        self._mat.dot(self._vec)
+
+    def peakmem_cy_nocopy(self, size):
+        """Check peak memory usage of multiply.
+
+        Will also include setup.
+        """
+        self._mat.dot(self._vec)
+
+    def mem_cy_nocopy(self, size):
         """Check memory size of operator."""
         return self._mat
 
