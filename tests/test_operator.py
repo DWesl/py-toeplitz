@@ -48,7 +48,7 @@ def test_toeplitz_shape(n_rows, n_cols, toep_cls):
 @given(
     arrays(
         shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
-        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"), 
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
         elements=floats(allow_infinity=False, allow_nan=False, width=32)
     ),
     arrays(
@@ -64,7 +64,7 @@ def test_toeplitz_shape(n_rows, n_cols, toep_cls):
         ),
         elements=floats(allow_infinity=False, allow_nan=False, width=32)
     ),
-    sampled_from((Toeplitz, ConvolveToeplitz)),
+    sampled_from((Toeplitz, ConvolveToeplitz, CyToeplitz)),
 )
 def test_toeplitz_real_mat(first_col, first_row, test, toep_cls):
     """Test toeplitz for real inputs."""

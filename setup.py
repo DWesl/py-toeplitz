@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # ~*~ coding: utf8 ~*~
-from setuptools import setup
+# cython: embedsignature=True
+from setuptools import setup, Extension
+from Cython.Build import cythonize
+
 # import numpy as np
 
 with open("VERSION", "r") as in_file:
@@ -11,4 +14,13 @@ VERSION = "{ver:s}"
 
 setup(
     package_dir={"": "src"},
+    ext_modules=cythonize(
+        Extension(
+            "py_toeplitz.cytoeplitz",
+            ["src/py_toeplitz/cytoeplitz.pyx"],
+            # include_dirs=[np.get_include()]
+        ),
+        # include_path=[np.get_include()],
+        compiler_directives=dict(embedsignature=True)
+    )
 )
