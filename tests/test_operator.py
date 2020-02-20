@@ -3,8 +3,10 @@ import numpy.testing as np_tst
 from scipy.linalg import toeplitz
 
 from hypothesis import given, assume
-from hypothesis.extra.numpy import arrays, floating_dtypes
-from hypothesis.strategies import shared, integers, tuples, floats, sampled_from
+from hypothesis.extra.numpy import (arrays, floating_dtypes, integer_dtypes,
+                                    complex_number_dtypes)
+from hypothesis.strategies import (shared, integers, tuples, floats,
+                                   sampled_from, complex_numbers)
 
 from py_toeplitz import Toeplitz, ConvolveToeplitz
 from py_toeplitz.cytoeplitz import CyToeplitz
@@ -12,6 +14,9 @@ from py_toeplitz.cytoeplitz import CyToeplitz
 MAX_ARRAY = 10
 # no float16 loop for `np.dot`
 FLOAT_SIZES = (32, 64, 128)
+INTEGER_SIZES = (8, 16, 32, 64)
+COMPLEX_SIZES = (64, 128)
+INT8_MAX = 128
 
 # @given(
 #     arrays(
@@ -86,6 +91,83 @@ def test_toeplitz_real_mat(first_col, first_row, test, toep_cls):
         assume(np.all(np.isfinite(mat_result)))
     np_tst.assert_allclose(
         toeplitz_op.dot(test),
+        mat_result,
+        atol=atol_frac * max_el, rtol=atol_frac
+    )
+
+
+@given(
+    arrays(
+        shared(integer_dtypes(sizes=INTEGER_SIZES, endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+    ),
+    arrays(
+        shared(integer_dtypes(sizes=INTEGER_SIZES, endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
+    ),
+    arrays(
+        shared(integer_dtypes(sizes=INTEGER_SIZES, endianness="="), key="dtype"),
+        tuples(
+            shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
+            integers(min_value=1, max_value=MAX_ARRAY)
+        ),
+    ),
+    sampled_from((Toeplitz, ConvolveToeplitz, CyToeplitz)),
+)
+def test_toeplitz_int_mat(first_col, first_row, test, toep_cls):
+    """Test toeplitz for real inputs."""
+    full_mat = toeplitz(first_col, first_row)
+    toeplitz_op = toep_cls(first_col, first_row)
+    mat_result = full_mat.dot(test)
+    if toep_cls == ConvolveToeplitz:
+        rtol = 1e-6
+    else:
+        rtol = 0
+    np_tst.assert_allclose(
+        toeplitz_op.dot(test),
+        mat_result,
+        rtol=rtol
+    )
+
+
+@given(
+    arrays(
+        shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+    ),
+    arrays(
+        shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
+    ),
+    arrays(
+        shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
+        tuples(
+            shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
+            integers(min_value=1, max_value=MAX_ARRAY)
+        ),
+    ),
+    sampled_from((Toeplitz, ConvolveToeplitz, CyToeplitz)),
+)
+def test_toeplitz_complex_mat(first_col, first_row, test, toep_cls):
+    """Test toeplitz for real inputs."""
+    full_mat = toeplitz(first_col, first_row)
+    toeplitz_op = toep_cls(first_col, first_row)
+    if first_col.dtype == np.complex64:
+        atol_frac = 1e-5
+    elif first_col.dtype == np.complex128:
+        atol_frac = 1e-14
+    elif first_col.dtype == np.complex256:
+        atol_frac = 1e-15
+    max_el = max(np.max(np.abs(first_col)), np.max(np.abs(first_row)),
+                 np.max(np.abs(test)))
+    mat_result = full_mat.dot(test)
+    # Apparently `np.dot` uses an extended-precision accumulator
+    assume(np.all(np.isfinite(mat_result)))
+    op_result = toeplitz_op.dot(test)
+    # np.dot may give nan or zero depending on array rank.
+    assume(~np.any(np.isnan(op_result)))
+    np_tst.assert_allclose(
+        op_result,
         mat_result,
         atol=atol_frac * max_el, rtol=atol_frac
     )

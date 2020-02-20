@@ -4,7 +4,7 @@
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 
-# import numpy as np
+import numpy as np
 
 with open("VERSION", "r") as in_file:
     with open("src/py_toeplitz/__version__.py", "w") as out_file:
@@ -18,9 +18,9 @@ setup(
         Extension(
             "py_toeplitz.cytoeplitz",
             ["src/py_toeplitz/cytoeplitz.pyx"],
-            # include_dirs=[np.get_include()]
+            include_dirs=[np.get_include()]
         ),
-        # include_path=[np.get_include()],
+        include_path=[np.get_include()],
         compiler_directives=dict(embedsignature=True)
     )
 )
