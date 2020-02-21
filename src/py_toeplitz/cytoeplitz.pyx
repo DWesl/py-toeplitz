@@ -6,7 +6,9 @@ from numpy import complex64, complex128
 cimport numpy as np
 
 from scipy.sparse.linalg.interface import LinearOperator
-# from scipy.linalg cimport cython_blas  # sdot, ddot, cdotu, zdotu
+# These require five arguments, and do not accept two.  I would need
+# to write a wrapper to fill in the details.
+# from scipy.linalg cimport cython_blas # sdot, ddot, cdotu, zdotu
 
 ctypedef fused numeric_type:
     np.float32_t
@@ -88,13 +90,13 @@ class CyToeplitz(LinearOperator):
         cdef numeric_type[::1] data
         cdef numeric_type[:, ::1] result
         cdef numeric_type[::1] tmp
+        cy_dot = dot
         n_rows, n_columns = self.shape
         data = self._data
         n_data = len(data)
         result = empty((n_rows, vec.shape[1]), dtype=self.dtype, order="C")
         dot_start = n_rows - 1
         for i in range(n_rows):
-            tmp = data[dot_start - i: n_data - i]
-            tmp = dot(tmp, vec)
+            tmp = cy_dot(data[dot_start - i: n_data - i], vec)
             result[i, :] = tmp
         return result
