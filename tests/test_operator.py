@@ -83,8 +83,10 @@ def test_toeplitz_real_mat(first_col, first_row, test, toep_cls):
         atol_frac = 1e-14
     elif first_col.dtype == np.float128:
         atol_frac = 1e-15
-    max_el = max(np.max(np.abs(first_col)), np.max(np.abs(first_row)),
-                 np.max(np.abs(test)))
+    max_el = (
+        max(np.max(np.abs(first_col)), np.max(np.abs(first_row))) *
+        np.max(np.abs(test))
+    )
     mat_result = full_mat.dot(test)
     if first_col.dtype == np.float32:
         # Apparently `np.dot` uses an extended-precision accumulator
@@ -120,7 +122,7 @@ def test_toeplitz_int_mat(first_col, first_row, test, toep_cls):
     toeplitz_op = toep_cls(first_col, first_row)
     mat_result = full_mat.dot(test)
     if toep_cls == ConvolveToeplitz:
-        rtol = 1e-6
+        rtol = 2e-6
     else:
         rtol = 0
     np_tst.assert_allclose(
@@ -158,8 +160,10 @@ def test_toeplitz_complex_mat(first_col, first_row, test, toep_cls):
         atol_frac = 1e-14
     elif first_col.dtype == np.complex256:
         atol_frac = 1e-15
-    max_el = max(np.max(np.abs(first_col)), np.max(np.abs(first_row)),
-                 np.max(np.abs(test)))
+    max_el = (
+        max(np.max(np.abs(first_col)), np.max(np.abs(first_row))) *
+        np.max(np.abs(test))
+    )
     mat_result = full_mat.dot(test)
     # Apparently `np.dot` uses an extended-precision accumulator
     assume(np.all(np.isfinite(mat_result)))
