@@ -15,3 +15,4 @@ build
 *.pyc
 *.whl
 .asv
+cytoeplitz.c

@@ -23,27 +23,6 @@ OPERATOR_LIST = (Toeplitz, CyToeplitz,
                  ConvolveToeplitz, FFTToeplitz)
 ATOL_MIN = 1e-14
 
-# @given(
-#     arrays(
-#         shared(floating_dtypes(sizes=FLOAT_SIZES), key="dtype"),
-#         shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows")
-#     ),
-#     arrays(
-#         shared(floating_dtypes(sizes=FLOAT_SIZES), key="dtype"),
-#         shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols")
-#     ),
-#     arrays(
-#         shared(floating_dtypes(sizes=FLOAT_SIZES), key="dtype"),
-#         shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols")
-#     )
-# )
-# def test_toeplitz_real_vec(first_col, first_row, test):
-#     """Test toeplitz for real inputs."""
-#     full_mat = toeplitz(first_col, first_row)
-#     toeplitz_op = Toeplitz(first_col, first_row)
-#     np_tst.assert_allclose(full_mat.dot(test), toeplitz_op.dot(test))
-
-
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     integers(min_value=1, max_value=MAX_ARRAY),
@@ -106,7 +85,7 @@ def test_toeplitz_real_mat(toep_cls, first_col, first_row, test):
     np_tst.assert_allclose(
         op_result,
         mat_result,
-        atol=atol_frac * max_el + ATOL_MIN * len(test),
+        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
         rtol=atol_frac
     )
 
@@ -205,5 +184,6 @@ def test_toeplitz_complex_mat(toep_cls, first_col, first_row, test):
     np_tst.assert_allclose(
         op_result,
         mat_result,
-        atol=atol_frac * max_el + ATOL_MIN, rtol=atol_frac
+        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
+        rtol=atol_frac
     )
