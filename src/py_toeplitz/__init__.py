@@ -177,15 +177,10 @@ class FFTToeplitz(LinearOperator):
             self._fft = partial(rfft, n=computational_shape)
             self._ifft = partial(irfft, n=computational_shape)
         data = empty(computational_shape, dtype=dtype)
-        data[1:n_cols] = first_row[1:]
-        data[n_cols:] = first_column[:0:-1]
-        data[0] = first_column[0]
+        data[:n_rows] = first_column
+        data[n_rows:] = first_row[-1:0:-1]
         spectrum = self._fft(data)
-        self._spectrum = spectrum.conj()
-        # if self.dtype.kind == "c":
-        #     self._spectrum = spectrum
-        # else:
-        #     self._spectrum = spectrum.conj()
+        self._spectrum = spectrum
 
     def _matvec(self, vec):
         """Compute product of self with vec.

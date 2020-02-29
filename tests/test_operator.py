@@ -147,18 +147,21 @@ def test_toeplitz_int_mat(toep_cls, first_col, first_row, test):
     arrays(
         shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
-    ),
+        elements=complex_numbers(allow_infinity=False, allow_nan=False),
+    ).filter(lambda x: np.all(np.isfinite(x))),
     arrays(
         shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
-    ),
+        elements=complex_numbers(allow_infinity=False, allow_nan=False),
+    ).filter(lambda x: np.all(np.isfinite(x))),
     arrays(
         shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
         tuples(
             shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
             integers(min_value=1, max_value=MAX_ARRAY)
         ),
-    ),
+        elements=complex_numbers(allow_infinity=False, allow_nan=False),
+    ).filter(lambda x: np.all(np.isfinite(x))),
 )
 def test_toeplitz_complex_mat(toep_cls, first_col, first_row, test):
     """Test toeplitz for complex inputs."""
