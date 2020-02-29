@@ -75,8 +75,9 @@ def test_toeplitz_real_mat(toep_cls, first_col, first_row, test):
     max_el = np.max(np.abs(first_col))
     if len(first_row) > 1:
         max_el = max(max_el, np.max(np.abs(first_row[1:])))
-    if max_el != 0:
-        max_el *= np.max(np.abs(test))
+    max_test = np.max(np.abs(test))
+    if max_el != 0 and max_test != 0:
+        max_el *= max_test
     mat_result = full_mat.dot(test)
     if first_col.dtype == np.float32:
         # Apparently `np.dot` uses an extended-precision accumulator
@@ -192,8 +193,9 @@ def test_toeplitz_complex_mat(toep_cls, first_col, first_row, test):
     max_el = np.max(np.abs(first_col))
     if len(first_row) > 1:
         max_el = max(max_el, np.max(np.abs(first_row[1:])))
-    if max_el != 0:
-        max_el *= np.max(np.abs(test))
+    max_test = np.max(np.abs(test))
+    if max_el != 0 and max_test != 0:
+        max_el *= max_test
     mat_result = full_mat.dot(test)
     # Apparently `np.dot` uses an extended-precision accumulator
     assume(np.all(np.isfinite(mat_result)))
