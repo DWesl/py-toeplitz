@@ -6,6 +6,8 @@ from numpy.fft import fft, ifft, rfft, irfft
 from scipy.sparse.linalg.interface import LinearOperator
 from scipy.signal import convolve
 
+from .__version__ import VERSION as __version__
+
 
 class Toeplitz(LinearOperator):
     """Class holding toeplitz data."""
@@ -124,15 +126,15 @@ class ConvolveToeplitz(LinearOperator):
         """
         n_rows, n_cols = self.shape
         expand_dims = False
-        if vec.ndim == 2:
+        if vec.ndim == 2:  # pragma: no cover
             vec = vec[:, 0]
             expand_dims = True
         data = self._data
         result = convolve(vec, data[::-1], "full")
-        result_start = n_cols - 1  # len(data) // 2
+        result_start = n_cols - 1
         result_end = len(result) - n_cols + 1
         result = result[result_start:result_end]
-        if expand_dims:
+        if expand_dims:  # pragma: no cover
             result = result[:, newaxis]
         return result
 
@@ -195,7 +197,7 @@ class FFTToeplitz(LinearOperator):
         """
         n_rows, n_cols = self.shape
         expand_dims = False
-        if vec.ndim == 2:
+        if vec.ndim == 2:  # pragma: no cover
             vec = vec[:, 0]
             expand_dims = True
         to_transform = zeros(n_rows + n_cols - 1, dtype=vec.dtype)
@@ -204,7 +206,7 @@ class FFTToeplitz(LinearOperator):
         vec_spec *= self._spectrum
         result = self._ifft(vec_spec)
         result = result[:n_rows]
-        if expand_dims:
+        if expand_dims:  # pragma: no cover
             result = result[:, newaxis]
         if self.dtype.kind != "i":
             return result.astype(self.dtype)

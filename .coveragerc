@@ -1,0 +1,11 @@
+[run]
+branch=true
+parallel=true
+omit=*_flymake.py
+source=py_toeplitz
+
+[report]
+fail_under=98
+show_missing=True
+skip_covered=True
+omit=*_flymake.py
