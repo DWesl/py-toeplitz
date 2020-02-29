@@ -5,10 +5,11 @@ from numpy import int8, int16, int32, int64
 from numpy import complex64, complex128
 cimport numpy as np
 
-from scipy.sparse.linalg.interface import LinearOperator
 # These require five arguments, and do not accept two.  I would need
 # to write a wrapper to fill in the details.
-from scipy.linalg cimport cython_blas # sdot, ddot, cdotu, zdotu
+from scipy.linalg cimport cython_blas  # sdot, ddot, cdotu, zdotu
+
+from . import Toeplitz
 
 ctypedef fused numeric_type:
     np.float32_t
@@ -55,58 +56,8 @@ cdef blas_types blas_dot(blas_types[::1] vec1, blas_types[::1] vec2):
     return result
 
 
-class CyToeplitz(LinearOperator):
+class CyToeplitz(Toeplitz):
     """Class holding toeplitz data."""
-
-    def __init__(
-            self,
-            numeric_type[:] first_column,
-            numeric_type[:] first_row=None
-    ):
-        """Construct a toeplitz operator.
-
-        Parameters
-        ----------
-        first_column : array_like
-            First column of the matrix
-        first_row : array_like, optional
-            First row of the matrix; first element must be same as
-            that of `first_column`
-
-        See Also
-        --------
-        scipy.linalg.toeplitz : Construct the full array
-        """
-        if isinstance(first_row, type(None)):
-            first_row = conjugate(first_column)
-        cdef int n_rows = len(first_column)
-        cdef int n_cols = len(first_row)
-        if numeric_type is np.float32_t:
-            dtype = float32
-        elif numeric_type is np.float64_t:
-            dtype = float64
-        elif numeric_type is "long double":
-            dtype = float128
-        elif numeric_type is np.int8_t:
-            dtype = int8
-        elif numeric_type is np.int16_t:
-            dtype = int16
-        elif numeric_type is np.int32_t:
-            dtype = int32
-        elif numeric_type is np.int64_t:
-            dtype = int64
-        elif numeric_type is np.complex64_t:
-            dtype = complex64
-        elif numeric_type is np.complex128_t:
-            dtype = complex128
-        super(CyToeplitz, self).__init__(
-            shape=(n_rows, n_cols),
-            dtype=dtype
-        )
-        cdef numeric_type[:] data = empty(n_rows + n_cols - 1, dtype=self.dtype)
-        data[-n_cols:] = first_row
-        data[:n_rows] = first_column[::-1]
-        self._data = data
 
     def _matmat(self, numeric_type[:, :] vec):
         """Calculate product of self with vec.

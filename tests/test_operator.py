@@ -261,3 +261,95 @@ def test_toeplitz_only_col(toep_cls, first_col, test):
         atol=atol,
         rtol=atol_frac
     )
+
+
+@pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
+@given(
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32)
+    ),
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        tuples(
+            shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+            integers(min_value=1, max_value=MAX_ARRAY)
+        ),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32)
+    ),
+)
+def test_toeplitz_only_col(toep_cls, first_col, test):
+    """Test toeplitz for real inputs."""
+    full_mat = toeplitz(first_col)
+    toeplitz_op = toep_cls(first_col)
+    if first_col.dtype == np.float16:
+        atol_frac = 1e-2
+    elif first_col.dtype == np.float32:
+        atol_frac = 1e-5
+    elif first_col.dtype == np.float64:
+        atol_frac = 1e-14
+    elif first_col.dtype == np.float128:
+        atol_frac = 1.1e-14
+    max_el = np.max(np.abs(first_col))
+    if max_el != 0:
+        max_el *= np.max(np.abs(test))
+    mat_result = full_mat.dot(test)
+    if first_col.dtype == np.float32:
+        # Apparently `np.dot` uses an extended-precision accumulator
+        assume(np.all(np.isfinite(mat_result)))
+    op_result = toeplitz_op.dot(test)
+    if toep_cls == FFTToeplitz:
+        assume(np.all(np.isfinite(op_result)))
+    np_tst.assert_allclose(
+        op_result,
+        mat_result,
+        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
+        rtol=atol_frac
+    )
+
+
+@pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
+@given(
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32)
+    ),
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        tuples(
+            shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+            integers(min_value=1, max_value=MAX_ARRAY)
+        ),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32)
+    ),
+)
+def test_toeplitz_only_col(toep_cls, first_col, test):
+    """Test toeplitz for real inputs."""
+    full_mat = toeplitz(first_col)
+    toeplitz_op = toep_cls(first_col)
+    if first_col.dtype == np.float16:
+        atol_frac = 1e-2
+    elif first_col.dtype == np.float32:
+        atol_frac = 1e-5
+    elif first_col.dtype == np.float64:
+        atol_frac = 1e-14
+    elif first_col.dtype == np.float128:
+        atol_frac = 1.1e-14
+    max_el = np.max(np.abs(first_col))
+    if max_el != 0:
+        max_el *= np.max(np.abs(test))
+    mat_result = full_mat.dot(test)
+    if first_col.dtype == np.float32:
+        # Apparently `np.dot` uses an extended-precision accumulator
+        assume(np.all(np.isfinite(mat_result)))
+    op_result = toeplitz_op.dot(test)
+    if toep_cls == FFTToeplitz:
+        assume(np.all(np.isfinite(op_result)))
+    np_tst.assert_allclose(
+        op_result,
+        mat_result,
+        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
+        rtol=atol_frac
+    )

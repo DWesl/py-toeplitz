@@ -82,36 +82,8 @@ class Toeplitz(LinearOperator):
         return result
 
 
-class ConvolveToeplitz(LinearOperator):
+class ConvolveToeplitz(Toeplitz):
     """Toeplitz operator using convolve."""
-
-    def __init__(self, first_column, first_row=None):
-        """Construct a toeplitz operator.
-
-        Parameters
-        ----------
-        first_column : array_like
-            First column of the matrix
-        first_row : array_like, optional
-            First row of the matrix; first element must be same as
-            that of `first_column`
-
-        See Also
-        --------
-        scipy.linalg.toeplitz : Construct the full array
-        """
-        if first_row is None:
-            first_row = first_column
-        n_rows = len(first_column)
-        n_cols = len(first_row)
-        super(ConvolveToeplitz, self).__init__(
-            shape=(n_rows, n_cols),
-            dtype=first_column.dtype
-        )
-        data = empty(n_rows + n_cols - 1, dtype=self.dtype)
-        data[-n_cols:] = first_row
-        data[:n_rows] = first_column[::-1]
-        self._data = data
 
     def _matvec(self, vec):
         """Compute product of self with vec.
@@ -139,7 +111,7 @@ class ConvolveToeplitz(LinearOperator):
         return result
 
 
-class FFTToeplitz(LinearOperator):
+class FFTToeplitz(Toeplitz):
     """Toeplitz operator using FFT."""
 
     def __init__(self, first_column, first_row=None):
@@ -157,20 +129,13 @@ class FFTToeplitz(LinearOperator):
         --------
         scipy.linalg.toeplitz : Construct the full array
         """
-        if first_row is None:
-            first_row = first_column
-        n_rows = len(first_column)
-        n_cols = len(first_row)
-        dtype = first_column.dtype
         super(FFTToeplitz, self).__init__(
-            shape=(n_rows, n_cols),
-            dtype=dtype
+            first_column, first_row
         )
+        n_rows, n_cols = self.shape
+        dtype = self.dtype
         computational_shape = n_rows + n_cols - 1
-        data = empty(computational_shape, dtype=dtype)
-        data[-n_cols:] = first_row
-        data[:n_rows] = first_column[::-1]
-        self._data = data
+        first_row = self._data[-n_cols:]
 
         if dtype.kind == "c":
             self._fft = partial(fft, n=computational_shape)
