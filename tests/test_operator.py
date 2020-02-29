@@ -187,6 +187,8 @@ def test_toeplitz_complex_mat(toep_cls, first_col, first_row, test):
         atol_frac = 1e-14
     elif first_col.dtype == np.complex256:
         atol_frac = 1e-15
+        if toep_cls == FFTToeplitz:
+            atol_frac = 1e-14
     max_el = np.max(np.abs(first_col))
     if len(first_row) > 1:
         max_el = max(max_el, np.max(np.abs(first_row[1:])))
