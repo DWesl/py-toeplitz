@@ -124,7 +124,7 @@ def test_toeplitz_int_mat(toep_cls, first_col, first_row, test):
         # if max_el != 0:
         #     max_el *= np.max(np.abs(test))
         # assume(np.array(max_el, first_col.dtype)  == max_el)
-        atol = rtol * max_el * np.max(np.abs(test))
+        atol = abs(rtol * max_el * np.max(np.abs(test)))
         mat_result_long = toeplitz(
             first_col.astype(float),
             first_row.astype(float)
@@ -202,9 +202,13 @@ def test_toeplitz_complex_mat(toep_cls, first_col, first_row, test):
     op_result = toeplitz_op.dot(test)
     # np.dot may give nan or zero depending on array rank.
     assume(~np.any(np.isnan(op_result)))
+    assume(np.all(np.isfinite(np.abs(op_result))))
+    atol = atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0])
+    assume(atol < np.inf)
+    assume(atol != np.inf)
     np_tst.assert_allclose(
         op_result,
         mat_result,
-        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
+        atol=atol,
         rtol=atol_frac
     )
