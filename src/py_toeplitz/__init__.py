@@ -5,6 +5,7 @@ from numpy.fft import fft, ifft, rfft, irfft
 
 from scipy.sparse.linalg.interface import LinearOperator
 from scipy.signal import convolve
+from scipy.linalg import solve_toeplitz
 
 from .__version__ import VERSION as __version__
 
@@ -39,6 +40,26 @@ class Toeplitz(LinearOperator):
         data[-n_cols:] = first_row
         data[:n_rows] = first_column[::-1]
         self._data = data
+
+    def solve(self, b):
+        """Solve self.dot(x) = b for x.
+
+        Parameters
+        ----------
+        b: array_like
+
+        Returns
+        -------
+        x: np.ndarray
+
+        See Also
+        --------
+        scipy.linalg.solve_toeplitz
+        """
+        diagonal_index = self.shape[0] - 1
+        first_row = self._data[diagonal_index:]
+        first_col = self._data[diagonal_index::-1]
+        return solve_toeplitz((first_col, first_row), b)
 
     def _matvec(self, vec):
         """Calculate product of self with vec.

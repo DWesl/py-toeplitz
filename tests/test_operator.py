@@ -1,10 +1,11 @@
 import numpy as np
 import numpy.testing as np_tst
-from scipy.linalg import toeplitz
+from numpy.linalg import cond
+from scipy.linalg import toeplitz, solve_toeplitz
 
 import pytest
 
-from hypothesis import given, assume
+from hypothesis import given, assume, target
 from hypothesis.extra.numpy import (arrays, floating_dtypes, integer_dtypes,
                                     complex_number_dtypes)
 from hypothesis.strategies import (shared, integers, tuples, floats,
@@ -259,5 +260,68 @@ def test_toeplitz_only_col(toep_cls, first_col, test):
         op_result,
         mat_result,
         atol=atol,
+        rtol=atol_frac
+    )
+
+
+@pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
+@given(
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES[:-1], endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32),
+        unique=True,
+    ),
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES[:-1], endianness="="), key="dtype"),
+        shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32),
+        unique=True,
+    ),
+    arrays(
+        shared(floating_dtypes(sizes=FLOAT_SIZES[:-1], endianness="="), key="dtype"),
+        tuples(
+            shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
+            integers(min_value=1, max_value=MAX_ARRAY)
+        ),
+        elements=floats(allow_infinity=False, allow_nan=False, width=32)
+    ),
+)
+def test_toeplitz_solve(toep_cls, first_col, first_row, test):
+    """Test toeplitz for real inputs."""
+    target(float(abs(first_col[0])), label="diagonal_entries")
+    assume(first_col[0] != 0)
+    full_mat = toeplitz(first_col, first_row)
+    mat_cond = cond(full_mat)
+    target(max(float(-np.log(mat_cond)), -1e308),
+           label="matrix_condition")
+    col_diff = np.diff(first_col)
+    target(float(np.count_nonzero(col_diff)),
+           label="nonzero-differences")
+    assume(mat_cond < 1e4)
+    assume(np.all(col_diff != 0))
+    toeplitz_op = toep_cls(first_col, first_row)
+    if first_col.dtype == np.float32:
+        atol_frac = 1e-5
+    elif first_col.dtype == np.float64:
+        atol_frac = 1e-14
+    max_el = np.max(np.abs(first_col))
+    if len(first_row) > 1:
+        max_el = max(max_el, np.max(np.abs(first_row[1:])))
+    # max_test = np.max(np.abs(test))
+    target(float((test != 0).sum()), label="nonzero_RHS")
+    # if max_el != 0 and max_test != 0:
+    #     max_el /= max_test
+    mat_result = solve_toeplitz((first_col, first_row), test)
+    if first_col.dtype == np.float32:
+        # Apparently `np.dot` uses an extended-precision accumulator
+        assume(np.all(np.isfinite(mat_result)))
+    op_result = toeplitz_op.solve(test)
+    if toep_cls == FFTToeplitz:
+        assume(np.all(np.isfinite(op_result)))
+    np_tst.assert_allclose(
+        op_result,
+        mat_result,
+        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
         rtol=atol_frac
     )
