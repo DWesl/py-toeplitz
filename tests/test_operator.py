@@ -278,16 +278,8 @@ def test_toeplitz_only_col(toep_cls, first_col, test):
         elements=floats(allow_infinity=False, allow_nan=False, width=32),
         unique=True,
     ),
-    arrays(
-        shared(floating_dtypes(sizes=FLOAT_SIZES[:-1], endianness="="), key="dtype"),
-        tuples(
-            shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
-            integers(min_value=1, max_value=MAX_ARRAY)
-        ),
-        elements=floats(allow_infinity=False, allow_nan=False, width=32)
-    ),
 )
-def test_toeplitz_solve(toep_cls, first_col, first_row, test):
+def test_toeplitz_solve(toep_cls, first_col, first_row):
     """Test toeplitz for real inputs."""
     target(float(abs(first_col[0])), label="diagonal_entries")
     assume(first_col[0] != 0)
@@ -308,6 +300,7 @@ def test_toeplitz_solve(toep_cls, first_col, first_row, test):
     max_el = np.max(np.abs(first_col))
     if len(first_row) > 1:
         max_el = max(max_el, np.max(np.abs(first_row[1:])))
+    test = np.ones_like(first_col)
     # max_test = np.max(np.abs(test))
     target(float((test != 0).sum()), label="nonzero_RHS")
     # if max_el != 0 and max_test != 0:
