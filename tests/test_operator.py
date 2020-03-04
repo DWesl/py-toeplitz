@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import numpy.testing as np_tst
 from numpy.linalg import cond
@@ -264,18 +266,26 @@ def test_toeplitz_only_col(toep_cls, first_col, test):
     )
 
 
+ODD_LENGTH_TEST_ARRAYS = [
+    0.5 ** np.arange(4),
+    0.333 ** np.arange(4),
+    1. / np.arange(1, 5),
+    np.exp(-np.arange(4) ** 2),
+]
+EVEN_LENGTH_TEST_ARRAYS = [
+    0.5 ** np.arange(5),
+    0.333 ** np.arange(5),
+    1. / np.arange(1, 6),
+    np.exp(-np.arange(5) ** 2),
+]
+
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST[:2])
 @pytest.mark.parametrize(
-    "first_col",
-    [0.5 ** np.arange(4),
-     0.333 ** np.arange(4),
-     1. / np.arange(1, 5)]
-)
-@pytest.mark.parametrize(
-    "first_row",
-    [0.5 ** np.arange(4),
-     0.333 ** np.arange(4),
-     1. / np.arange(1, 5)]
+    "first_col,first_row",
+    itertools.chain(
+        itertools.product(ODD_LENGTH_TEST_ARRAYS, ODD_LENGTH_TEST_ARRAYS),
+        itertools.product(EVEN_LENGTH_TEST_ARRAYS, EVEN_LENGTH_TEST_ARRAYS),
+    )
 )
 def test_toeplitz_solve(toep_cls, first_col, first_row):
     """Test toeplitz for real inputs."""
