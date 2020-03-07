@@ -23,6 +23,7 @@ OPERATOR_LIST = (Toeplitz, CyToeplitz,
                  ConvolveToeplitz, FFTToeplitz)
 ATOL_MIN = 1e-14
 
+
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     integers(min_value=1, max_value=MAX_ARRAY),
