@@ -1,13 +1,10 @@
-import itertools
-
 import numpy as np
 import numpy.testing as np_tst
-from numpy.linalg import cond
-from scipy.linalg import toeplitz, solve_toeplitz
+from scipy.linalg import toeplitz
 
 import pytest
 
-from hypothesis import given, assume, target
+from hypothesis import given, assume
 from hypothesis.extra.numpy import (arrays, floating_dtypes, integer_dtypes,
                                     complex_number_dtypes)
 from hypothesis.strategies import (shared, integers, tuples, floats,
@@ -25,6 +22,7 @@ INT8_MAX = 128
 OPERATOR_LIST = (Toeplitz, CyToeplitz,
                  ConvolveToeplitz, FFTToeplitz)
 ATOL_MIN = 1e-14
+
 
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
@@ -262,53 +260,5 @@ def test_toeplitz_only_col(toep_cls, first_col, test):
         op_result,
         mat_result,
         atol=atol,
-        rtol=atol_frac
-    )
-
-
-ODD_LENGTH_TEST_ARRAYS = [
-    0.5 ** np.arange(4),
-    0.333 ** np.arange(4),
-    1. / np.arange(1, 5),
-    np.exp(-np.arange(4) ** 2),
-]
-EVEN_LENGTH_TEST_ARRAYS = [
-    0.5 ** np.arange(5),
-    0.333 ** np.arange(5),
-    1. / np.arange(1, 6),
-    np.exp(-np.arange(5) ** 2),
-]
-
-@pytest.mark.parametrize("toep_cls", OPERATOR_LIST[:2])
-@pytest.mark.parametrize(
-    "first_col,first_row",
-    itertools.chain(
-        itertools.product(ODD_LENGTH_TEST_ARRAYS, ODD_LENGTH_TEST_ARRAYS),
-        itertools.product(EVEN_LENGTH_TEST_ARRAYS, EVEN_LENGTH_TEST_ARRAYS),
-    )
-)
-def test_toeplitz_solve(toep_cls, first_col, first_row):
-    """Test toeplitz for real inputs."""
-    full_mat = toeplitz(first_col, first_row)
-    mat_cond = cond(full_mat)
-    col_diff = np.diff(first_col)
-    toeplitz_op = toep_cls(first_col, first_row)
-    if first_col.dtype == np.float32:
-        atol_frac = 1e-5
-    elif first_col.dtype == np.float64:
-        atol_frac = 1e-14
-    max_el = np.max(np.abs(first_col))
-    if len(first_row) > 1:
-        max_el = max(max_el, np.max(np.abs(first_row[1:])))
-    test = np.ones_like(first_col)
-    # max_test = np.max(np.abs(test))
-    # if max_el != 0 and max_test != 0:
-    #     max_el /= max_test
-    mat_result = solve_toeplitz((first_col, first_row), test)
-    op_result = toeplitz_op.solve(test)
-    np_tst.assert_allclose(
-        op_result,
-        mat_result,
-        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
         rtol=atol_frac
     )
