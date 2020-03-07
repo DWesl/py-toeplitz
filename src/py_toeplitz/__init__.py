@@ -1,3 +1,7 @@
+"""Classes for Toeplitz matrices.
+
+Various implementations of operations involving toeplitz matrices.
+"""
 from functools import partial
 
 from numpy import dot, empty, zeros, newaxis, around
@@ -6,7 +10,7 @@ from numpy.fft import fft, ifft, rfft, irfft
 from scipy.sparse.linalg.interface import LinearOperator
 from scipy.signal import convolve
 
-from .__version__ import VERSION as __version__
+from .__version__ import VERSION as __version__  # noqa: F401
 
 
 class Toeplitz(LinearOperator):

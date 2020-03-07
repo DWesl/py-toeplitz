@@ -1,3 +1,8 @@
+"""Test matrix-vector and matrix-matrix multiplications with Toeplitz classes.
+
+This is primarily implemented with property-based testing, based on
+comparisons with :fun:`scipy.linalg.toeplitz`
+"""
 import numpy as np
 import numpy.testing as np_tst
 from scipy.linalg import toeplitz
@@ -8,7 +13,7 @@ from hypothesis import given, assume
 from hypothesis.extra.numpy import (arrays, floating_dtypes, integer_dtypes,
                                     complex_number_dtypes)
 from hypothesis.strategies import (shared, integers, tuples, floats,
-                                   sampled_from, builds)
+                                   builds)
 
 from py_toeplitz import Toeplitz, ConvolveToeplitz, FFTToeplitz
 from py_toeplitz.cytoeplitz import CyToeplitz
@@ -23,12 +28,14 @@ OPERATOR_LIST = (Toeplitz, CyToeplitz,
                  ConvolveToeplitz, FFTToeplitz)
 ATOL_MIN = 1e-14
 
+
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     integers(min_value=1, max_value=MAX_ARRAY),
     integers(min_value=1, max_value=MAX_ARRAY),
 )
 def test_toeplitz_shape_dtype(toep_cls, n_rows, n_cols):
+    """Test that the shape and dtype of the operators make sense."""
     first_col = np.empty(n_rows)
     first_row = np.empty(n_cols)
     matrix = toeplitz(first_col, first_row)
@@ -40,17 +47,26 @@ def test_toeplitz_shape_dtype(toep_cls, n_rows, n_cols):
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     arrays(
-        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(
+            floating_dtypes(sizes=FLOAT_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
         elements=floats(allow_infinity=False, allow_nan=False, width=32)
     ),
     arrays(
-        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(
+            floating_dtypes(sizes=FLOAT_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
         elements=floats(allow_infinity=False, allow_nan=False, width=32)
     ),
     arrays(
-        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(
+            floating_dtypes(sizes=FLOAT_SIZES, endianness="="),
+            key="dtype"
+        ),
         tuples(
             shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
             integers(min_value=1, max_value=MAX_ARRAY)
@@ -88,7 +104,8 @@ def test_toeplitz_real_mat(toep_cls, first_col, first_row, test):
     np_tst.assert_allclose(
         op_result,
         mat_result,
-        atol=atol_frac * max_el + ATOL_MIN * (len(test) + toeplitz_op.shape[0]),
+        atol=(atol_frac * max_el +
+              ATOL_MIN * (len(test) + toeplitz_op.shape[0])),
         rtol=atol_frac
     )
 
@@ -96,15 +113,24 @@ def test_toeplitz_real_mat(toep_cls, first_col, first_row, test):
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     arrays(
-        shared(integer_dtypes(sizes=INTEGER_SIZES, endianness="="), key="dtype"),
+        shared(
+            integer_dtypes(sizes=INTEGER_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
     ),
     arrays(
-        shared(integer_dtypes(sizes=INTEGER_SIZES, endianness="="), key="dtype"),
+        shared(
+            integer_dtypes(sizes=INTEGER_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
     ),
     arrays(
-        shared(integer_dtypes(sizes=INTEGER_SIZES, endianness="="), key="dtype"),
+        shared(
+            integer_dtypes(sizes=INTEGER_SIZES, endianness="="),
+            key="dtype"
+        ),
         tuples(
             shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
             integers(min_value=1, max_value=MAX_ARRAY)
@@ -148,7 +174,10 @@ def test_toeplitz_int_mat(toep_cls, first_col, first_row, test):
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     arrays(
-        shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
+        shared(
+            complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
         elements=builds(
             complex,
@@ -157,7 +186,10 @@ def test_toeplitz_int_mat(toep_cls, first_col, first_row, test):
         ),
     ).filter(lambda x: np.all(np.isfinite(x))),
     arrays(
-        shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
+        shared(
+            complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
         elements=builds(
             complex,
@@ -166,7 +198,10 @@ def test_toeplitz_int_mat(toep_cls, first_col, first_row, test):
         ),
     ).filter(lambda x: np.all(np.isfinite(x))),
     arrays(
-        shared(complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="), key="dtype"),
+        shared(
+            complex_number_dtypes(sizes=COMPLEX_SIZES, endianness="="),
+            key="dtype"
+        ),
         tuples(
             shared(integers(min_value=1, max_value=MAX_ARRAY), key="ncols"),
             integers(min_value=1, max_value=MAX_ARRAY)
@@ -217,12 +252,18 @@ def test_toeplitz_complex_mat(toep_cls, first_col, first_row, test):
 @pytest.mark.parametrize("toep_cls", OPERATOR_LIST)
 @given(
     arrays(
-        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(
+            floating_dtypes(sizes=FLOAT_SIZES, endianness="="),
+            key="dtype"
+        ),
         shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
         elements=floats(allow_infinity=False, allow_nan=False, width=32)
     ),
     arrays(
-        shared(floating_dtypes(sizes=FLOAT_SIZES, endianness="="), key="dtype"),
+        shared(
+            floating_dtypes(sizes=FLOAT_SIZES, endianness="="),
+            key="dtype"
+        ),
         tuples(
             shared(integers(min_value=1, max_value=MAX_ARRAY), key="nrows"),
             integers(min_value=1, max_value=MAX_ARRAY)
