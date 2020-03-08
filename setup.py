@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # ~*~ coding: utf8 ~*~
 # cython: embedsignature=True
+"""Configure the py_toeplitz package.
+
+Cython extension means not everything can be moved to `setup.cfg`.
+"""
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 

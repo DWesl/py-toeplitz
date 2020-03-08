@@ -1,0 +1,17 @@
+# -*- mode: conf;-*-
+[flake8]
+ignore=D413,W504
+exclude=
+    .eggs,*.egg,
+    .tox,.asv,
+    build,dist,
+    __pycache__,
+    .git,
+    *_flymake.py,
+    doc/source/conf.py,benchmarks/__init__.py
+rst-roles=
+    # Sphinx
+    abbr, fun
+docstring-convention=numpy
+doctests=True
+max-complexity=10
