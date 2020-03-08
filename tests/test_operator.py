@@ -9,7 +9,7 @@ from scipy.linalg import toeplitz
 
 import pytest
 
-from hypothesis import given, assume
+from hypothesis import given, assume, target
 from hypothesis.extra.numpy import (arrays, floating_dtypes, integer_dtypes,
                                     complex_number_dtypes)
 from hypothesis.strategies import (shared, integers, tuples, floats,
@@ -287,10 +287,16 @@ def test_toeplitz_only_col(toep_cls, first_col, test):
     if max_el != 0:
         max_el *= np.max(np.abs(test))
     mat_result = full_mat.dot(test)
+    target(float(np.sum(np.isfinite(mat_result))), "mat_result_finite")
     if first_col.dtype == np.float32:
         # Apparently `np.dot` uses an extended-precision accumulator
         assume(np.all(np.isfinite(mat_result)))
     op_result = toeplitz_op.dot(test)
+    target(float(np.sum(np.isfinite(op_result))), "op_result_finite")
+    target(
+        float(np.sum(np.isfinite(np.abs(op_result)))),
+        "op_result_mag_finite"
+    )
     if toep_cls == FFTToeplitz:
         assume(np.all(np.isfinite(op_result)))
         assume(np.all(np.isfinite(np.abs(op_result))))
