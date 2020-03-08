@@ -1,3 +1,7 @@
+"""Benchmarks comparing the Toeplitz operators.
+
+Run from root directory with `python -m asv dev`.
+"""
 # Write the benchmarking functions here.
 # See "Writing benchmarks" in the asv docs for more information.
 from numpy import arange
@@ -11,6 +15,7 @@ TEST_SIZES = [float(2 ** i) for i in range(3, 14)]
 
 class ScipyToeplitzSuite:
     """Benchmark values for `scipy.linalg.toeplitz`."""
+
     params = TEST_SIZES
     param_names = ["size"]
 
@@ -37,6 +42,7 @@ class ScipyToeplitzSuite:
 
 class PyToeplitzSuite:
     """Benchmark values for `py_toeplitz.Toeplitz`."""
+
     params = TEST_SIZES
     param_names = ["size"]
 
@@ -63,6 +69,7 @@ class PyToeplitzSuite:
 
 class CythonToeplitzSuite:
     """Benchmark values for `py_toeplitz.cytoeplitz.CyToeplitz`."""
+
     params = TEST_SIZES
     param_names = ["size"]
 
@@ -89,6 +96,7 @@ class CythonToeplitzSuite:
 
 class ConvolveToeplitzSuite:
     """Benchmark values for `py_toeplitz.ConvolveToeplitz`."""
+
     params = TEST_SIZES
     param_names = ["size"]
 
@@ -115,6 +123,7 @@ class ConvolveToeplitzSuite:
 
 class FFTToeplitzSuite:
     """Benchmark values for `py_toeplitz.ConvolveToeplitz`."""
+
     params = TEST_SIZES
     param_names = ["size"]
 
