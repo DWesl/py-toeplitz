@@ -57,7 +57,23 @@ cdef blas_types blas_dot(blas_types[::1] vec1, blas_types[::1] vec2):
 
 
 class CyToeplitz(Toeplitz):
-    """Class holding toeplitz data."""
+    """Class holding toeplitz data.
+
+    Examples
+    --------
+    >>> toep_op1 = CyToeplitz([0, 1, 2, 3, 4])
+    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
+    array([[0, 1, 2, 3, 4],
+           [1, 0, 1, 2, 3],
+           [2, 1, 0, 1, 2],
+           [3, 2, 1, 0, 1],
+           [4, 3, 2, 1, 0]])
+    >>> toep_op2 = CyToeplitz([0, 1, 2], [3, 4])
+    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
+    array([[0, 4],
+           [1, 0],
+           [2, 1]])
+    """
 
     def _matmat(self, numeric_type[:, :] vec):
         """Calculate product of self with vec.
