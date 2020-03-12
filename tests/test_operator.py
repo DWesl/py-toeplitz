@@ -15,7 +15,8 @@ from hypothesis.extra.numpy import (arrays, floating_dtypes, integer_dtypes,
 from hypothesis.strategies import (shared, integers, tuples, floats,
                                    builds)
 
-from py_toeplitz import Toeplitz, ConvolveToeplitz, FFTToeplitz
+from py_toeplitz import (Toeplitz, ConvolveToeplitz, FFTToeplitz,
+                         stride_tricks_toeplitz)
 from py_toeplitz.cytoeplitz import CyToeplitz
 
 MAX_ARRAY = 10
@@ -25,7 +26,8 @@ INTEGER_SIZES = (8, 16, 32, 64)
 COMPLEX_SIZES = (64, 128)
 INT8_MAX = 128
 OPERATOR_LIST = (Toeplitz, CyToeplitz,
-                 ConvolveToeplitz, FFTToeplitz)
+                 ConvolveToeplitz, FFTToeplitz,
+                 stride_tricks_toeplitz)
 ATOL_MIN = 1e-14
 
 
