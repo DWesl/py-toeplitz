@@ -4,7 +4,7 @@ Various implementations of operations involving toeplitz matrices.
 """
 from functools import partial
 
-from numpy import dot, empty, zeros, newaxis, around
+from numpy import dot, empty, zeros, newaxis, around, asarray
 from numpy.fft import fft, ifft, rfft, irfft
 from numpy.lib.stride_tricks import as_strided
 
