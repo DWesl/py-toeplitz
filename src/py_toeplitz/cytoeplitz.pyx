@@ -1,5 +1,5 @@
 # cythom: embedsignature=True
-from numpy import dot, empty, conjugate
+from numpy import dot, empty, conjugate, asarray
 from numpy import float32, float64, float128
 from numpy import int8, int16, int32, int64
 from numpy import complex64, complex128
@@ -57,9 +57,59 @@ cdef blas_types blas_dot(blas_types[::1] vec1, blas_types[::1] vec2):
 
 
 class CyToeplitz(Toeplitz):
-    """Class holding toeplitz data."""
+    """Class holding toeplitz data.
 
-    def _matmat(self, numeric_type[:, :] vec):
+    Examples
+    --------
+    >>> toep_op1 = CyToeplitz([0, 1, 2, 3, 4])
+    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
+    array([[0, 1, 2, 3, 4],
+           [1, 0, 1, 2, 3],
+           [2, 1, 0, 1, 2],
+           [3, 2, 1, 0, 1],
+           [4, 3, 2, 1, 0]])
+    >>> toep_op2 = CyToeplitz([0, 1, 2], [3, 4])
+    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
+    array([[0, 4],
+           [1, 0],
+           [2, 1]])
+    """
+
+    def _matmat(self, numeric_type[:, :] other_matrix):
+        """Calculate product of self with other_matrix.
+
+        Parameters
+        ----------
+        other_matrix : array_like
+
+        Returns
+        -------
+        product : array_like
+        """
+        cdef long int n_rows, n_columns, n_data, dot_start, i
+        cdef numeric_type[::1] data
+        cdef numeric_type[:, ::1] result
+        cdef numeric_type[::1] tmp
+        cdef long int n_cols_other_matrix = other_matrix.shape[1]
+        n_rows, n_columns = self.shape
+        data = self._data
+        n_data = len(data)
+        result = empty((n_rows, n_cols_other_matrix), dtype=self.dtype, order="C")
+        dot_start = n_rows - 1
+        if numeric_type in blas_types:
+            for j in range(n_cols_other_matrix):
+                tmp = other_matrix[:, j].copy()
+                for i in range(n_rows):
+                    result[i, j] = blas_dot(data[dot_start - i: n_data - i], tmp)
+        else:
+            cy_dot = dot
+            for i in range(n_rows):
+                tmp = cy_dot(data[dot_start - i: n_data - i], other_matrix)
+                result[i, :] = tmp
+
+        return result
+
+    def _matvec(self, vec):
         """Calculate product of self with vec.
 
         Parameters
@@ -70,25 +120,7 @@ class CyToeplitz(Toeplitz):
         -------
         product : array_like
         """
-        cdef long int n_rows, n_columns, n_data, dot_start, i
-        cdef numeric_type[::1] data
-        cdef numeric_type[:, ::1] result
-        cdef numeric_type[::1] tmp
-        cdef long int n_cols_vec = vec.shape[1]
-        n_rows, n_columns = self.shape
-        data = self._data
-        n_data = len(data)
-        result = empty((n_rows, n_cols_vec), dtype=self.dtype, order="C")
-        dot_start = n_rows - 1
-        if numeric_type in blas_types:
-            for j in range(n_cols_vec):
-                tmp = vec[:, j].copy()
-                for i in range(n_rows):
-                    result[i, j] = blas_dot(data[dot_start - i: n_data - i], tmp)
-        else:
-            cy_dot = dot
-            for i in range(n_rows):
-                tmp = cy_dot(data[dot_start - i: n_data - i], vec)
-                result[i, :] = tmp
-
+        result = asarray(self._matmat(vec.reshape(-1, 1)))
+        if vec.ndim == 1:
+            return result.reshape(-1)
         return result

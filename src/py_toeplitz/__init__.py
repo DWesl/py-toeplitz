@@ -56,7 +56,24 @@ def stride_tricks_toeplitz(first_column, first_row=None):
 
 
 class Toeplitz(LinearOperator):
-    """Class holding toeplitz data."""
+    """Class holding toeplitz data.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> toep_op1 = Toeplitz([0, 1, 2, 3, 4])
+    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
+    array([[0, 1, 2, 3, 4],
+           [1, 0, 1, 2, 3],
+           [2, 1, 0, 1, 2],
+           [3, 2, 1, 0, 1],
+           [4, 3, 2, 1, 0]])
+    >>> toep_op2 = Toeplitz([0, 1, 2], [3, 4])
+    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
+    array([[0, 4],
+           [1, 0],
+           [2, 1]])
+    """
 
     def __init__(self, first_column, first_row=None):
         """Construct a toeplitz operator.
@@ -73,6 +90,7 @@ class Toeplitz(LinearOperator):
         --------
         scipy.linalg.toeplitz : Construct the full array
         """
+        first_column = asarray(first_column)
         if first_row is None:
             first_row = first_column
         n_rows = len(first_column)
@@ -96,6 +114,15 @@ class Toeplitz(LinearOperator):
         Returns
         -------
         x: np.ndarray
+
+        Examples
+        --------
+        >>> toep_op = Toeplitz([3, 2, 1])
+        >>> toep_op.solve([1, 3, 2])
+        array([-0.625,  1.5  , -0.125])
+        >>> toep_op2 = Toeplitz([3, 2, 1], [6, 5, 4])
+        >>> toep_op2.solve([1, 2, 3])
+        array([-6.,  3.,  1.])
 
         See Also
         --------
@@ -149,7 +176,24 @@ class Toeplitz(LinearOperator):
 
 
 class ConvolveToeplitz(Toeplitz):
-    """Toeplitz operator using convolve."""
+    """Toeplitz operator using convolve.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> toep_op1 = ConvolveToeplitz([0, 1, 2, 3, 4])
+    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
+    array([[0., 1., 2., 3., 4.],
+           [1., 0., 1., 2., 3.],
+           [2., 1., 0., 1., 2.],
+           [3., 2., 1., 0., 1.],
+           [4., 3., 2., 1., 0.]])
+    >>> toep_op2 = ConvolveToeplitz([0, 1, 2], [3, 4])
+    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
+    array([[0., 4.],
+           [1., 0.],
+           [2., 1.]])
+    """
 
     def _matvec(self, vec):
         """Compute product of self with vec.
@@ -178,7 +222,29 @@ class ConvolveToeplitz(Toeplitz):
 
 
 class FFTToeplitz(Toeplitz):
-    """Toeplitz operator using FFT."""
+    """Toeplitz operator using FFT.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> toep_op1 = FFTToeplitz([0, 1, 2, 3, 4])
+    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
+    array([[0, 1, 2, 3, 4],
+           [1, 0, 1, 2, 3],
+           [2, 1, 0, 1, 2],
+           [3, 2, 1, 0, 1],
+           [4, 3, 2, 1, 0]])
+    >>> toep_op2 = FFTToeplitz([0, 1, 2], [3, 4])
+    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
+    array([[0, 4],
+           [1, 0],
+           [2, 1]])
+    >>> toep_op3 = FFTToeplitz([1+2j, 3+4j, 5+6j])
+    >>> toep_op3.dot(np.eye(toep_op3.shape[1]))
+    array([[1.+2.j, 3.+4.j, 5.+6.j],
+           [3.+4.j, 1.+2.j, 3.+4.j],
+           [5.+6.j, 3.+4.j, 1.+2.j]])
+    """
 
     def __init__(self, first_column, first_row=None):
         """Construct a toeplitz operator.

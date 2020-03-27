@@ -7,142 +7,44 @@ Run from root directory with `python -m asv dev`.
 from numpy import arange
 from scipy.linalg import toeplitz
 
-from py_toeplitz import Toeplitz, ConvolveToeplitz, FFTToeplitz
+from py_toeplitz import (
+    Toeplitz, ConvolveToeplitz, FFTToeplitz,
+    # stride_tricks_toeplitz
+)
 from py_toeplitz.cytoeplitz import CyToeplitz
 
-TEST_SIZES = [float(2 ** i) for i in range(3, 14)]
+TEST_SIZES = [float(2 ** i) for i in range(3, 15)]
+TOEPLITZ_IMPLEMENTATIONS = {
+    impl.__name__: impl
+    for impl in (
+        toeplitz,  # stride_tricks_toeplitz,
+        Toeplitz, CyToeplitz, ConvolveToeplitz, FFTToeplitz
+    )
+}
 
 
-class ScipyToeplitzSuite:
-    """Benchmark values for `scipy.linalg.toeplitz`."""
+class CombinedToeplitzSuite:
+    """Benchmark operations for toeplitz implementations."""
 
-    params = TEST_SIZES
-    param_names = ["size"]
+    params = (TEST_SIZES, TOEPLITZ_IMPLEMENTATIONS.keys())
+    param_names = ("size", "implementation")
 
-    def setup(self, size):
+    def setup(self, size, impl):
         """Set up the matrix and test vector."""
-        self._mat = toeplitz(arange(size, 0, -1))
+        self._mat = TOEPLITZ_IMPLEMENTATIONS[impl](arange(size, 0, -1))
         self._vec = arange(size)
 
-    def time_dense(self, size):
+    def time_product(self, size, impl):
         """Time the multiply."""
         self._mat.dot(self._vec)
 
-    def peakmem_dense(self, size):
+    def peakmem_product(self, size, impl):
         """Check peak memory usage of multiply.
 
         Will also include setup.
         """
         self._mat.dot(self._vec)
 
-    def mem_dense(self, size):
-        """Check memory size of operator."""
-        return self._mat
-
-
-class PyToeplitzSuite:
-    """Benchmark values for `py_toeplitz.Toeplitz`."""
-
-    params = TEST_SIZES
-    param_names = ["size"]
-
-    def setup(self, size):
-        """Set up the matrix and test vector."""
-        self._mat = Toeplitz(arange(size, 0, -1))
-        self._vec = arange(size)
-
-    def time_py_nocopy(self, size):
-        """Time the multiply."""
-        self._mat.dot(self._vec)
-
-    def peakmem_py_nocopy(self, size):
-        """Check peak memory usage of multiply.
-
-        Will also include setup.
-        """
-        self._mat.dot(self._vec)
-
-    def mem_py_nocopy(self, size):
-        """Check memory size of operator."""
-        return self._mat
-
-
-class CythonToeplitzSuite:
-    """Benchmark values for `py_toeplitz.cytoeplitz.CyToeplitz`."""
-
-    params = TEST_SIZES
-    param_names = ["size"]
-
-    def setup(self, size):
-        """Set up the matrix and test vector."""
-        self._mat = CyToeplitz(arange(size, 0, -1))
-        self._vec = arange(size)
-
-    def time_cy_nocopy(self, size):
-        """Time the multiply."""
-        self._mat.dot(self._vec)
-
-    def peakmem_cy_nocopy(self, size):
-        """Check peak memory usage of multiply.
-
-        Will also include setup.
-        """
-        self._mat.dot(self._vec)
-
-    def mem_cy_nocopy(self, size):
-        """Check memory size of operator."""
-        return self._mat
-
-
-class ConvolveToeplitzSuite:
-    """Benchmark values for `py_toeplitz.ConvolveToeplitz`."""
-
-    params = TEST_SIZES
-    param_names = ["size"]
-
-    def setup(self, size):
-        """Set up the matrix and test vector."""
-        self._mat = ConvolveToeplitz(arange(size, 0, -1))
-        self._vec = arange(size)
-
-    def time_convolve_nocopy(self, size):
-        """Time the multiply."""
-        self._mat.dot(self._vec)
-
-    def peakmem_convolve_nocopy(self, size):
-        """Check peak memory usage of multiply.
-
-        Will also include setup.
-        """
-        self._mat.dot(self._vec)
-
-    def mem_convolve_nocopy(self, size):
-        """Check memory size of operator."""
-        return self._mat
-
-
-class FFTToeplitzSuite:
-    """Benchmark values for `py_toeplitz.ConvolveToeplitz`."""
-
-    params = TEST_SIZES
-    param_names = ["size"]
-
-    def setup(self, size):
-        """Set up the matrix and test vector."""
-        self._mat = FFTToeplitz(arange(size, 0, -1))
-        self._vec = arange(size)
-
-    def time_fft_nocopy(self, size):
-        """Time the multiply."""
-        self._mat.dot(self._vec)
-
-    def peakmem_fft_nocopy(self, size):
-        """Check peak memory usage of multiply.
-
-        Will also include setup.
-        """
-        self._mat.dot(self._vec)
-
-    def mem_fft_nocopy(self, size):
+    def mem_copy_operator(self, size, impl):
         """Check memory size of operator."""
         return self._mat
