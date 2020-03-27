@@ -6,12 +6,53 @@ from functools import partial
 
 from numpy import dot, empty, zeros, newaxis, around, asarray
 from numpy.fft import fft, ifft, rfft, irfft
+from numpy.lib.stride_tricks import as_strided
 
 from scipy.sparse.linalg.interface import LinearOperator
 from scipy.signal import convolve
 from scipy.linalg import solve_toeplitz
 
 from .__version__ import VERSION as __version__  # noqa: F401
+
+
+def stride_tricks_toeplitz(first_column, first_row=None):
+    """Use stride tricks to create a toeplitz matrix.
+
+    Parameters
+    ----------
+    first_column: array_like[M]
+    first_row: array_like[N], optional
+
+    Returns
+    -------
+    toeplitz_array: array_like[M, N]
+
+    Examples
+    --------
+    >>> stride_tricks_toeplitz([4, 3, 2, 1, 0])
+    array([[4, 3, 2, 1, 0],
+           [3, 4, 3, 2, 1],
+           [2, 3, 4, 3, 2],
+           [1, 2, 3, 4, 3],
+           [0, 1, 2, 3, 4]])
+    >>> stride_tricks_toeplitz([4, 3, 2, 1, 0], [0, 1, 2, 3, 4])
+    array([[4, 1, 2, 3, 4],
+           [3, 4, 1, 2, 3],
+           [2, 3, 4, 1, 2],
+           [1, 2, 3, 4, 1],
+           [0, 1, 2, 3, 4]])
+    """
+    first_column = asarray(first_column)
+    if first_row is None:
+        first_row = first_column
+    n_rows = len(first_column)
+    n_cols = len(first_row)
+    dtype = first_column.dtype
+    data = empty((n_rows + n_cols - 1), dtype=dtype)
+    data[-n_cols:] = first_row
+    data[:n_rows] = first_column[::-1]
+    return as_strided(data[-n_cols:], (n_rows, n_cols),
+                      (-dtype.itemsize, dtype.itemsize))
 
 
 class Toeplitz(LinearOperator):
