@@ -42,3 +42,4 @@ jobs:
         pip install .
         python setup.py check
         python -m pytest
+        python -m pytest --pyargs py_toeplitz --doctest-modules
