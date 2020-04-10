@@ -183,16 +183,16 @@ class ConvolveToeplitz(Toeplitz):
     >>> import numpy as np
     >>> toep_op1 = ConvolveToeplitz([0, 1, 2, 3, 4])
     >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
-    array([[0., 1., 2., 3., 4.],
-           [1., 0., 1., 2., 3.],
-           [2., 1., 0., 1., 2.],
-           [3., 2., 1., 0., 1.],
-           [4., 3., 2., 1., 0.]])
+    array([[0, 1, 2, 3, 4],
+           [1, 0, 1, 2, 3],
+           [2, 1, 0, 1, 2],
+           [3, 2, 1, 0, 1],
+           [4, 3, 2, 1, 0]])
     >>> toep_op2 = ConvolveToeplitz([0, 1, 2], [3, 4])
     >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
-    array([[0., 4.],
-           [1., 0.],
-           [2., 1.]])
+    array([[0, 4],
+           [1, 0],
+           [2, 1]])
     """
 
     def _matvec(self, vec):
