@@ -56,24 +56,7 @@ def stride_tricks_toeplitz(first_column, first_row=None):
 
 
 class Toeplitz(LinearOperator):
-    """Class holding toeplitz data.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> toep_op1 = Toeplitz([0, 1, 2, 3, 4])
-    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
-    array([[0, 1, 2, 3, 4],
-           [1, 0, 1, 2, 3],
-           [2, 1, 0, 1, 2],
-           [3, 2, 1, 0, 1],
-           [4, 3, 2, 1, 0]])
-    >>> toep_op2 = Toeplitz([0, 1, 2], [3, 4])
-    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
-    array([[0, 4],
-           [1, 0],
-           [2, 1]])
-    """
+    """Class holding toeplitz data."""
 
     def __init__(self, first_column, first_row=None):
         """Construct a toeplitz operator.
@@ -133,6 +116,29 @@ class Toeplitz(LinearOperator):
         first_col = self._data[diagonal_index::-1]
         return solve_toeplitz((first_col, first_row), b)
 
+
+class PyToeplitz(Toeplitz):
+    """Implement the Toeplitz operations using loops.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> toep_op1 = PyToeplitz([0, 1, 2, 3, 4])
+    >>> toep_op1.dot(np.eye(toep_op1.shape[1]))
+    array([[0, 1, 2, 3, 4],
+           [1, 0, 1, 2, 3],
+           [2, 1, 0, 1, 2],
+           [3, 2, 1, 0, 1],
+           [4, 3, 2, 1, 0]])
+    >>> toep_op1.dot([1, 1, 1, 1, 1])
+    array([10,  7,  6,  7, 10])
+    >>> toep_op2 = PyToeplitz([0, 1, 2], [3, 4])
+    >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
+    array([[0, 4],
+           [1, 0],
+           [2, 1]])
+    """
+
     def _matvec(self, vec):
         """Calculate product of self with vec.
 
@@ -188,6 +194,8 @@ class ConvolveToeplitz(Toeplitz):
            [2., 1., 0., 1., 2.],
            [3., 2., 1., 0., 1.],
            [4., 3., 2., 1., 0.]])
+    >>> toep_op1.dot([1, 1, 1, 1, 1])
+    array([10,  7,  6,  7, 10])
     >>> toep_op2 = ConvolveToeplitz([0, 1, 2], [3, 4])
     >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
     array([[0., 4.],
@@ -234,6 +242,8 @@ class FFTToeplitz(Toeplitz):
            [2, 1, 0, 1, 2],
            [3, 2, 1, 0, 1],
            [4, 3, 2, 1, 0]])
+    >>> toep_op1.dot([1, 1, 1, 1, 1])
+    array([10,  7,  6,  7, 10])
     >>> toep_op2 = FFTToeplitz([0, 1, 2], [3, 4])
     >>> toep_op2.dot(np.eye(toep_op2.shape[1]))
     array([[0, 4],

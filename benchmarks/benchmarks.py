@@ -8,17 +8,23 @@ from numpy import arange
 from scipy.linalg import toeplitz
 
 from py_toeplitz import (
-    Toeplitz, ConvolveToeplitz, FFTToeplitz,
+    ConvolveToeplitz, FFTToeplitz,
     # stride_tricks_toeplitz
 )
+try:
+    from py_toeplitz import PyToeplitz
+except ImportError:
+    from py_toeplitz import Toeplitz as PyToeplitz
 from py_toeplitz.cytoeplitz import CyToeplitz
 
 TEST_SIZES = [float(2 ** i) for i in range(3, 15)]
 TOEPLITZ_IMPLEMENTATIONS = {
     impl.__name__: impl
     for impl in (
-        toeplitz,  # stride_tricks_toeplitz,
-        Toeplitz, CyToeplitz, ConvolveToeplitz, FFTToeplitz
+        toeplitz,
+        # dot makes everything contiguous, I think.
+        # stride_tricks_toeplitz,
+        PyToeplitz, CyToeplitz, ConvolveToeplitz, FFTToeplitz
     )
 }
 
