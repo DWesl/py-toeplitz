@@ -7,10 +7,10 @@ from scipy.linalg import solve_toeplitz
 
 import pytest
 
-from py_toeplitz import Toeplitz, ConvolveToeplitz, FFTToeplitz
+from py_toeplitz import PyToeplitz, ConvolveToeplitz, FFTToeplitz
 from py_toeplitz.cytoeplitz import CyToeplitz
 
-OPERATOR_LIST = (Toeplitz, CyToeplitz,
+OPERATOR_LIST = (PyToeplitz, CyToeplitz,
                  ConvolveToeplitz, FFTToeplitz)
 ATOL_MIN = 1e-14
 ODD_LENGTH_TEST_ARRAYS = [
