@@ -2,11 +2,23 @@
 py-toeplitz
 ===========
 Implementation of Toeplitz matricies using several algorithms and SciPy's LinearOperators.
-Two of the available operators use an implementation that forms a vector of the elements 
-of the first row and column and indexes out the subsets corresponding to the rows as 
-needed.  One of these operators uses Cython_ and SciPy's Cython wrappers for BLAS to 
-speed up the floating-point cases.  Another operator uses `scipy.signal.convolve`_, and 
-the last uses NumPy's FFTs.
+
+- Two of the available operators use an implementation that forms a vector of the elements 
+  of the first row and column and indexes out the subsets corresponding to the rows as 
+  needed.  
+
+  - One of these operators uses Cython_ and SciPy's Cython wrappers for BLAS to 
+    speed up the floating-point cases.  
+
+- Another operator uses `scipy.signal.convolve`_.
+
+- The last uses NumPy's FFTs.
+
+All implementations should be lower-memory than `scipy.linalg.toeplitz`_, and the last two 
+implementations also have algorithmic speedups.  The first two implementations may be 
+slightly faster due to cache interaction with the smaller memory footprint, but this effect 
+will be small both for matrices small enough to fit entirely in cache and for matrices 
+large enough that even the smaller representation doesn't fit in cache.
 
 Related Software
 ================
