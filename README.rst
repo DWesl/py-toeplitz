@@ -12,7 +12,10 @@ Implementation of Toeplitz matricies using several algorithms and SciPy's Linear
 
 - Another operator uses `scipy.signal.convolve`_.
 
-- The last uses NumPy's FFTs.
+- The fourth uses NumPy's FFTs.
+
+- The fifth uses NumPy stride tricks, which appears to make the array contiguous before
+  doing any products.
 
 All implementations should be lower-memory than `scipy.linalg.toeplitz`_, and the last two 
 implementations also have algorithmic speedups.  The first two implementations may be 
@@ -59,3 +62,6 @@ Performance Comparison
   8192.0   28.5±0ms          613±0ms           34.0±0ms    18.9±0ms        4.55±0ms         4.48±0ms
  16384.0   122±0ms           2.34±0s           620±0ms     489±0ms         12.1±0ms         14.9±0ms
 ========= ========== ======================== ========== ============ ================== =============
+
+CPython 3.6 with Cython 0.29.5, NumPy 1.16.6, and SciPy 1.2.3.
+ConvolveToeplitz and FFTToeplitz may be faster with the recent FFT improvements in NumPy.
