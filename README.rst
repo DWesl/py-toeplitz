@@ -17,8 +17,8 @@ Implementation of Toeplitz matricies using several algorithms and SciPy's Linear
 - The fifth uses NumPy stride tricks, which appears to make the array contiguous before
   doing any products.
 
-All implementations should be lower-memory than `scipy.linalg.toeplitz`_, and the last two 
-implementations also have algorithmic speedups.  The first two implementations may be 
+All implementations should be lower-memory than `scipy.linalg.toeplitz`_, and the third and 
+fourth implementations also have algorithmic speedups.  The first two implementations may be 
 slightly faster due to cache interaction with the smaller memory footprint, but this effect 
 will be small both for matrices small enough to fit entirely in cache and for matrices 
 large enough that even the smaller representation doesn't fit in cache.
