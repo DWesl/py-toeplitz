@@ -18,10 +18,10 @@ jobs:
         uses: egor-tensin/setup-cygwin@v3
         with:
           platform: x64
-          packages: python38-numpy python38-pytest python38-hypothesis python38-cython
+          packages: python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip python38-wheel python38-setuptools
       - name: Install dependencies
         run: |
-          python3.8 -m pip install --upgrade pip
+          python3.8 -m pip install --upgrade pip wheel
           python3.8 -m pip install Cython numpy scipy
           python3.8 -m pip install -r requirements.txt
           python3.8 -m pip install -r requirements-test.txt
