@@ -30,7 +30,7 @@ jobs:
         with:
           platform: x64
           install-dir: 'C:\tools\cygwin'
-          packages: python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip python38-wheel python38-setuptools
+          packages: python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip python38-wheel python38-setuptools liblapack-devel libopenblas
       - name: Clean Windows PATH
         uses: egor-tensin/cleanup-path@v1
         with:
@@ -40,6 +40,9 @@ jobs:
           bash -c "mkdir -p ~/.config/pip"
           bash -c "echo >~/.config/pip/pip.conf $'[install]\nprefer-binary = True'"
       - name: Install dependencies
+        env:
+          BLAS: /usr/lib/libblas.dll.a
+          LAPACK: /usr/lib/liblapack.dll.a
         run: |
           bash -c "python3.8 -m pip install --upgrade pip wheel"
           bash -c "python3.8 -m pip install Cython numpy scipy"
