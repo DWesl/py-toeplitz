@@ -37,18 +37,18 @@ jobs:
           dirs: ${{ steps.install-cygwin.install-dir }}
       - name: Ask pip to use cache contents
         run: |
-          mkdir -p ~/.config/pip
+          bash -c "mkdir -p ~/.config/pip"
           bash -c "echo >~/.config/pip/pip.conf $'[install]\nprefer-binary = True'"
       - name: Install dependencies
         run: |
-          python3.8 -m pip install --upgrade pip wheel
-          python3.8 -m pip install Cython numpy scipy
-          python3.8 -m pip install -r requirements.txt
-          python3.8 -m pip install -r requirements-test.txt
+          bash -c "python3.8 -m pip install --upgrade pip wheel"
+          bash -c "python3.8 -m pip install Cython numpy scipy"
+          bash -c "python3.8 -m pip install -r requirements.txt"
+          bash -c "python3.8 -m pip install -r requirements-test.txt"
       - name: Test with pytest
         run: |
-          python3.8 -m pip install pytest
-          python3.8 -m pip install .
-          python3.8 setup.py check
-          python3.8 -m pytest
-          python3.8 -m pytest --pyargs py_toeplitz --doctest-modules
+          bash -c "python3.8 -m pip install pytest"
+          bash -c "python3.8 -m pip install ."
+          bash -c "python3.8 setup.py check"
+          bash -c "python3.8 -m pytest"
+          bash -c "python3.8 -m pytest --pyargs py_toeplitz --doctest-modules"
