@@ -37,6 +37,7 @@ jobs:
           dirs: ${{ steps.install-cygwin.install-dir }}
       - name: Ask pip to use cache contents
         run: |
+          mkdir -p ~/.config/pip
           bash -c "echo >~/.config/pip/pip.conf $'[install]\nprefer-binary = True'"
       - name: Install dependencies
         run: |
