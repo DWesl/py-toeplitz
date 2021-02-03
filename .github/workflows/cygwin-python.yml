@@ -20,10 +20,10 @@ jobs:
           path: |
             ~/.cache/pip/
             C:\tools\cygwin\packages
-            key: ${{ runner.os }}-build-${{ hashFiles('requirements*.txt') }}
-            restore-keys: |
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
+          key: ${{ runner.os }}-build-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Install Cygwin
         id: install-cygwin
         uses: egor-tensin/setup-cygwin@v3
