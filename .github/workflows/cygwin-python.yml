@@ -47,6 +47,29 @@ jobs:
           bash -c "python3.8 -m pip install --upgrade pip wheel"
           bash -c "python3.8 -m pip install -r requirements.txt"
           bash -c "python3.8 -m pip install -r requirements-test.txt"
+      - name: Build wheel
+        run: |
+          bash -c "python3.8 setup.py bdist_wheel"
+      - name: Install wheel
+        run: |
+          bash -c "python3.8 -m pip install dist/py_toeplitz*.whl"
+      - name: Check that pip installed the extensions
+        run: |
+          bash -c "python3.7 -m pip show py_toeplitz
+          bash -c "python3.7 -m pip show -f py_toeplitz | grep .dll"
+          echo >list_dlls_dos.sh 'site_packages=$(python3.7 -m pip show py_toeplitz | grep Location | cut -d " " -f 2 -);
+          dll_list=$(for name in $(python3.7 -m pip show -f py_toeplitz | grep -F .dll); do echo ${site_packages}/${name}; done)
+          ls -l ${dll_list}
+          file ${dll_list}
+          ldd ${dll_list}
+          cygcheck ${dll_list}
+          for name in ${dll_list};
+          do
+              python3.7 -c "import "$(echo ${name} | sed -E -e "s|/home.*?site-packages/||g" -e "s|/|.|g" -e "s/.cpython-3.-x86(_64)?-cygwin.dll//g")
+          done
+          '
+          bash -c "tr -d '\r' <list_dlls_dos.sh >list_dlls_unix.sh"
+          bash list_dlls_unix.sh
       - name: Test with pytest
         run: |
           bash -c "python3.8 -m pip install pytest"
