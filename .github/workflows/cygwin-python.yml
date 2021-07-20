@@ -30,7 +30,7 @@ jobs:
         with:
           platform: x64
           install-dir: 'C:\tools\cygwin'
-          packages: python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip python38-wheel python38-setuptools liblapack-devel libopenblas gcc-fortran
+          packages: python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip python38-wheel python38-setuptools liblapack-devel libopenblas gcc-fortran gcc-g++
       - name: Clean Windows PATH
         uses: egor-tensin/cleanup-path@v1
         with:
