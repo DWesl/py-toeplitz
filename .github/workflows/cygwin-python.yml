@@ -34,7 +34,7 @@ jobs:
       - name: Clean Windows PATH
         uses: egor-tensin/cleanup-path@v1
         with:
-          dirs: ${{ steps.install-cygwin.install-dir }}'\bin;'${{ steps.install-cygwin.install-dir }}'\lib\lapack'
+          dirs: 'C:\tools\cygwin\bin;C:\tools\cygwin\lib\lapack'
       - name: Ask pip to use cache contents
         run: |
           bash -c "mkdir -p ~/.config/pip"
