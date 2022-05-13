@@ -36,6 +36,11 @@ jobs:
         uses: egor-tensin/cleanup-path@v1
         with:
           dirs: 'C:\tools\cygwin\bin;C:\tools\cygwin\lib\lapack'
+      - name: Specify python version
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          /usr/sbin/alternatives --set python /usr/bin/python3.8
+          /usr/sbin/alternatives --set python3 /usr/bin/python3.8
       - name: Ask pip to use cache contents
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
@@ -46,8 +51,14 @@ jobs:
         env:
           BLAS: /usr/lib/libblas.dll.a
           LAPACK: /usr/lib/liblapack.dll.a
+          NPY_LAPACK_ORDER: openblas,lapack
+          NPY_BLAS_ORDER: openblas,blas
+          NPY_BLAS_LIBS: -lblas
+          NPY_LAPACK_LIBS: -llapack -lblas
         run: |
           python3.8 -m pip install --upgrade pip wheel 'setuptools<60'
+          python3.8 -m pip install cython pythran pybind11
+          python3.8 -m pip install 'numpy!=1.21.*'
           python3.8 -m pip install 'scipy<1.7'
           python3.8 -m pip install -r requirements.txt
           python3.8 -m pip install -r requirements-test.txt
