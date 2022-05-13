@@ -14,66 +14,70 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup cache for Cygwin and pip
+      - name: Setup cache for pip
         uses: actions/cache@v2
         with:
           path: |
             ~/.cache/pip/
-            C:\tools\cygwin\packages
           key: ${{ runner.os }}-build-${{ hashFiles('requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install Cygwin
         id: install-cygwin
-        uses: egor-tensin/setup-cygwin@v3
+        uses: cygwin/cygwin-install-action@v2
         with:
-          platform: x64
-          install-dir: 'C:\tools\cygwin'
-          packages: python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip python38-wheel python38-setuptools liblapack-devel libopenblas gcc-fortran gcc-g++
+          platform: x86_64
+          install-dir: 'C:\cygwin'
+          packages: >-
+              python38-devel python38-numpy python38-pytest python38-hypothesis python38-cython python38-pip 
+              python38-wheel python38-setuptools liblapack-devel libopenblas gcc-fortran gcc-g++
       - name: Clean Windows PATH
         uses: egor-tensin/cleanup-path@v1
         with:
           dirs: 'C:\tools\cygwin\bin;C:\tools\cygwin\lib\lapack'
       - name: Ask pip to use cache contents
+        shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          bash -c "mkdir -p ~/.config/pip"
-          bash -c "echo >~/.config/pip/pip.conf $'[install]\nprefer-binary = True'"
+          mkdir -p ~/.config/pip
+          echo >~/.config/pip/pip.conf $'[install]\nprefer-binary = True'
       - name: Install dependencies
+        shell: bash.exe -eo pipefail -o igncr "{0}"
         env:
           BLAS: /usr/lib/libblas.dll.a
           LAPACK: /usr/lib/liblapack.dll.a
         run: |
-          bash -c "python3.8 -m pip install --upgrade pip wheel"
-          bash -c "python3.8 -m pip install -r requirements.txt"
-          bash -c "python3.8 -m pip install -r requirements-test.txt"
+          python3.8 -m pip install --upgrade pip wheel
+          python3.8 -m pip install -r requirements.txt
+          python3.8 -m pip install -r requirements-test.txt
       - name: Build wheel
+        shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          bash -c "python3.8 setup.py bdist_wheel"
+          python3.8 setup.py bdist_wheel
       - name: Install wheel
+        shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          bash -c "python3.8 -m pip install dist/py_toeplitz*.whl"
+          python3.8 -m pip install dist/py_toeplitz*.whl
       - name: Check that pip installed the extensions
+        shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          bash -c "python3.7 -m pip show py_toeplitz
-          bash -c "python3.7 -m pip show -f py_toeplitz | grep .dll"
-          echo >list_dlls_dos.sh 'site_packages=$(python3.7 -m pip show py_toeplitz | grep Location | cut -d " " -f 2 -);
-          dll_list=$(for name in $(python3.7 -m pip show -f py_toeplitz | grep -F .dll); do echo ${site_packages}/${name}; done)
+          python3.8 -m pip show py_toeplitz
+          python3.8 -m pip show -f py_toeplitz | grep .dll
+          site_packages=$(python3.8 -m pip show py_toeplitz | grep Location | cut -d " " -f 2 -);
+          dll_list=$(for name in $(python3.8 -m pip show -f py_toeplitz | grep -F .dll); do echo ${site_packages}/${name}; done)
           ls -l ${dll_list}
           file ${dll_list}
           ldd ${dll_list}
           cygcheck ${dll_list}
           for name in ${dll_list};
           do
-              python3.7 -c "import "$(echo ${name} | sed -E -e "s|/home.*?site-packages/||g" -e "s|/|.|g" -e "s/.cpython-3.-x86(_64)?-cygwin.dll//g")
+              python3.8 -c "import "$(echo ${name} | sed -E -e "s|/home.*?site-packages/||g" -e "s|/|.|g" -e "s/.cpython-3.*-x86(_64)?-cygwin.dll//g")
           done
-          '
-          bash -c "tr -d '\r' <list_dlls_dos.sh >list_dlls_unix.sh"
-          bash list_dlls_unix.sh
       - name: Test with pytest
+        shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          bash -c "python3.8 -m pip install pytest"
-          bash -c "python3.8 -m pip install ."
-          bash -c "python3.8 setup.py check"
-          bash -c "python3.8 -m pytest"
-          bash -c "python3.8 -m pytest --pyargs py_toeplitz --doctest-modules"
+          python3.8 -m pip install pytest
+          python3.8 -m pip install .
+          python3.8 setup.py check
+          python3.8 -m pytest
+          python3.8 -m pytest --pyargs py_toeplitz --doctest-modules
