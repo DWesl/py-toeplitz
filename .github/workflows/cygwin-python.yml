@@ -46,7 +46,7 @@ jobs:
         run: |
           mkdir -p ~/.config/pip
           echo >~/.config/pip/pip.conf $'[install]\nprefer-binary = True'
-      - name: Install dependencies
+      - name: Install build dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         env:
           BLAS: /usr/lib/libblas.dll.a
@@ -59,6 +59,22 @@ jobs:
           python3.8 -m pip install --upgrade pip wheel 'setuptools<60'
           python3.8 -m pip install cython pythran pybind11
           python3.8 -m pip install 'numpy!=1.21.*'
+      - name: Check NumPy import
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          python3.8 -v -c "import numpy as np; print(np.__version__)"
+          python3.8 -v -c "import numpy.linalg as la"
+          python3.8 -v -c "import numpy.linalg.lapack_lite"
+      - name: Install more dependencies
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        env:
+          BLAS: /usr/lib/libblas.dll.a
+          LAPACK: /usr/lib/liblapack.dll.a
+          NPY_LAPACK_ORDER: openblas,lapack
+          NPY_BLAS_ORDER: openblas,blas
+          NPY_BLAS_LIBS: -lblas
+          NPY_LAPACK_LIBS: -llapack -lblas
+        run: |
           python3.8 -m pip install 'scipy<1.7'
           python3.8 -m pip install -r requirements.txt
           python3.8 -m pip install -r requirements-test.txt
