@@ -62,6 +62,10 @@ jobs:
       - name: Check NumPy import
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
+          ls -l $(find /usr/local/lib/python3.8/site-packages/numpy/ -name \*.dll)
+          file $(find /usr/local/lib/python3.8/site-packages/numpy/ -name \*.dll)
+          cygcheck $(find /usr/local/lib/python3.8/site-packages/numpy/ -name \*.dll)
+          ldd $(find /usr/local/lib/python3.8/site-packages/numpy/ -name \*.dll)
           python3.8 -v -c "import numpy as np; print(np.__version__)"
           python3.8 -v -c "import numpy.linalg as la"
           python3.8 -v -c "import numpy.linalg.lapack_lite"
