@@ -35,7 +35,7 @@ jobs:
       - name: Clean Windows PATH
         uses: egor-tensin/cleanup-path@v1
         with:
-          dirs: 'C:\tools\cygwin\bin;C:\tools\cygwin\lib\lapack'
+          dirs: 'C:\cygwin\bin;C:\cygwin\lib\lapack'
       - name: Specify python version
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
