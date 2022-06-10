@@ -77,9 +77,9 @@
     //     "pip+emcee": [""],   // emcee is only available for install with pip.
     // },
     "matrix": {
-	"numpy": ["1.16.6"],
-	"scipy": ["1.2.3"],
-	"cython": ["0.29.15"],
+	"numpy": ["1.20.0"],
+	"scipy": ["1.6.0"],
+	"cython": ["0.29.21"],
 	".": [""],
     },
 
